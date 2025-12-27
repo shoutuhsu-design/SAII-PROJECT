@@ -4,7 +4,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <!-- Theme color matches the top of the gradient -->
     <meta name="theme-color" content="#E0F2FA" />
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
     <title>ZTE Southern Africa Engineering Service Office</title>
@@ -23,77 +22,50 @@
                 light: '#E0F2FA', 
                 dark: '#0071A9'  
               }
-            },
-            screens: {
-              'xs': '375px', 
             }
           }
         }
       }
+      // 捕获脚本错误
+      window.onerror = function(msg, url, line) {
+        console.error("Global Error: " + msg + " at " + url + ":" + line);
+        return false;
+      };
     </script>
     <style>
-      /* Reset & Base */
-      * {
-        box-sizing: border-box;
-      }
-      
-      /* Utilities */
+      * { box-sizing: border-box; }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      .safe-pt { padding-top: env(safe-area-inset-top); }
-      .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
       .h-screen-safe { height: 100vh; height: 100dvh; }
 
-      /* =========================================
-         MODERN APP SHELL LOGIC
-         ========================================= */
       html, body {
-        margin: 0;
-        padding: 0;
+        margin: 0; padding: 0;
         background-color: #f0f9ff;
         overflow: hidden;
       }
 
-      /* 启动封面 - 默认显示，遮盖所有内容 */
       #app-shell {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
         z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
         background: linear-gradient(to bottom right, #E0F2FA, #F0F9FF, #ffffff);
         transition: opacity 0.5s ease-out, visibility 0.5s;
       }
 
-      /* 当应用就绪后，淡出封面 */
       body.app-ready #app-shell {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
 
-      /* Root 容器 - 初始状态可见但被 Shell 遮挡 */
-      #root {
-        width: 100%;
-        height: 100%;
-        opacity: 1;
-        transition: opacity 0.3s ease-in;
-      }
+      #root { width: 100%; height: 100%; }
 
       @media (max-width: 1024px) {
         html { background-color: #E0F2FA !important; }
-        body {
-          background: linear-gradient(to bottom right, #E0F2FA, #F0F9FF, #ffffff) !important;
-          background-attachment: fixed;
-        }
+        body { background: linear-gradient(to bottom right, #E0F2FA, #F0F9FF, #ffffff) !important; }
       }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
@@ -108,22 +80,13 @@
   }
 }
 </script>
-</head>
+  </head>
   <body>
-    <!-- STATIC APP SHELL (Launch Screen) -->
     <div id="app-shell">
-      <img 
-        src="https://upload.wikimedia.org/wikipedia/commons/2/20/ZTE-logo.svg" 
-        alt="ZTE" 
-        style="width: 120px; height: auto; display: block;"
-      />
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/ZTE-logo.svg" alt="ZTE" style="width: 120px; height: auto;" />
       <div style="margin-top: 20px; font-size: 12px; color: #008ED3; opacity: 0.6; letter-spacing: 2px;">LOADING...</div>
     </div>
-
-    <!-- React Root -->
     <div id="root"></div>
-
-    <!-- 入口脚本加载 -->
-    <script type="module" src="index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
