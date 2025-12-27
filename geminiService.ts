@@ -3,7 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 import { Task, User, Language } from './types.ts';
 import { toLocalDateString } from './utils.ts';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 获取 API Key 并增加垫片保护
+const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) ? process.env.API_KEY : '';
+
+const ai = new GoogleGenAI({ apiKey });
 const MODEL_NAME = 'gemini-2.5-flash';
 
 export interface ExecutiveReport {
@@ -36,6 +39,8 @@ export interface ExecutiveReport {
 }
 
 export const getAnomalyAnalysis = async (tasks: Task[], users: User[], language: Language): Promise<string> => {
+    if (!apiKey) return language === 'zh' ? "AI 功能未配置 API Key。" : "AI features require API Key.";
+    
     const today = toLocalDateString(new Date());
     const totalOverdue = tasks.filter(t => t.status !== 'completed' && t.endDate < today).length;
     const riskyPersonnel = users.map(u => {
@@ -55,6 +60,8 @@ export const getAnomalyAnalysis = async (tasks: Task[], users: User[], language:
 };
 
 export const getEfficiencyAnalysis = async (userTasks: Task[], period: string, language: Language): Promise<string> => {
+    if (!apiKey) return "";
+
      try {
         const completed = userTasks.filter(t => t.status === 'completed').length;
         const total = userTasks.length;
@@ -68,6 +75,8 @@ export const getEfficiencyAnalysis = async (userTasks: Task[], period: string, l
 };
 
 export const generateExecutiveReport = async (tasks: Task[], users: User[], language: Language): Promise<ExecutiveReport | null> => {
+    if (!apiKey) return null;
+
     try {
         const today = toLocalDateString(new Date());
         const total = tasks.length;
