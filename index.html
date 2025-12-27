@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <script>
-      // 垫片：防止在非 Node 环境下因缺少 process 对象而崩溃
+      // 核心垫片：防止在非 Node 环境下因缺少 process 对象而崩溃
       window.process = { 
         env: { 
           API_KEY: '' 
@@ -77,7 +76,7 @@
       }
     </style>
 
-    <!-- ES Module Shims: 确保在 GitHub Pages 这种静态环境下正确处理 Import Maps -->
+    <!-- ES Module Shims: 关键组件，确保在静态环境下正确解析 import maps -->
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"></script>
 
     <script type="importmap">
@@ -102,6 +101,6 @@
       <div style="margin-top: 20px; font-size: 12px; color: #008ED3; opacity: 0.6; letter-spacing: 2px;">LOADING...</div>
     </div>
     <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
