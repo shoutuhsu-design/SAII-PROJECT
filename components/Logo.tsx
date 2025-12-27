@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface LogoProps {
   className?: string;
@@ -6,9 +6,21 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({ className = "", variant = 'blue' }) => {
-  // Official ZTE Logo URL (Hosted on Wikimedia Commons)
-  // In a production environment, you should download this file, save it to your public folder, and reference it locally.
-  const logoUrl = "https://upload.wikimedia.org/wikipedia/commons/2/2e/ZTE_logo.svg";
+  const [hasError, setHasError] = useState(false);
+  // Updated URL per request
+  const logoUrl = "https://upload.wikimedia.org/wikipedia/commons/2/20/ZTE-logo.svg";
+
+  // Render fallback text if image fails
+  if (hasError) {
+    return (
+      <div 
+        className={`flex items-center justify-center font-bold text-xl h-full w-full ${className}`}
+        style={{ color: variant === 'white' ? 'white' : '#008ED3' }}
+      >
+        ZTE 中兴
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
@@ -17,10 +29,13 @@ export const Logo: React.FC<LogoProps> = ({ className = "", variant = 'blue' }) 
         alt="ZTE Logo"
         className="w-full h-full object-contain transition-all duration-300"
         style={{
-          // If variant is white, use CSS filter to invert the blue logo to white
-          // brightness(0) turns it black, invert(1) turns black to white
+          // Filter logic:
+          // The original logo is Blue.
+          // To make it White: brightness(0) -> Black, invert(1) -> White.
+          // To keep it Blue: none.
           filter: variant === 'white' ? 'brightness(0) invert(1)' : 'none'
         }}
+        onError={() => setHasError(true)}
       />
     </div>
   );

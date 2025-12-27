@@ -1,12 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Theme color matches the top of the gradient -->
+    <meta name="theme-color" content="#E0F2FA" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
     <title>ZTE Southern Africa Engineering Service Office</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -14,18 +19,145 @@
           extend: {
             colors: {
               zte: {
-                blue: '#008ED3', // Official ZTE Blue RGB(0, 142, 211)
-                light: '#E0F2FA', // Lighter shade for backgrounds
-                dark: '#0071A9'  // Darker shade for hover states
+                blue: '#008ED3', 
+                light: '#E0F2FA', 
+                dark: '#0071A9'  
               }
+            },
+            screens: {
+              'xs': '375px', 
             }
           }
         }
       }
     </script>
     <style>
-      body {
-        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      /* Reset & Base */
+      * {
+        box-sizing: border-box;
+      }
+      
+      /* Utilities */
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .safe-pt { padding-top: env(safe-area-inset-top); }
+      .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+      .h-screen-safe { height: 100vh; height: 100dvh; }
+
+      /* =========================================
+         MOBILE OPTIMIZATIONS (Phone & Tablet)
+         Targeting devices <= 1024px width
+         ========================================= */
+      @media (max-width: 1024px) {
+        /* 
+           1. Set specific background color on HTML for immediate paint 
+              (Solves "First frame white/black flash")
+        */
+        html {
+           background-color: #E0F2FA !important;
+        }
+
+        /* 
+           2. Apply Gradient to BODY
+           Matches AuthScreen: from-[#E0F2FA] via-[#F0F9FF] to-white
+        */
+        body {
+          margin: 0; 
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          -webkit-tap-highlight-color: transparent;
+          overscroll-behavior-y: none;
+          
+          /* Force Light Theme Gradient on Mobile to match AuthScreen */
+          background: linear-gradient(to bottom right, #E0F2FA, #F0F9FF, #ffffff) !important;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+        }
+
+        /* Hide React Root initially to prevent FOUC */
+        #root {
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.4s ease-in;
+        }
+
+        /* 
+           APP SHELL (Mobile Launch Screen)
+           - Z-Index 99999 to cover everything
+           - Background matches body exactly
+           - Ignores Dark Mode to prevent "Dark Blue" mismatch
+        */
+        #app-shell {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 99999;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          
+          /* Exact match gradient */
+          background: linear-gradient(to bottom right, #E0F2FA, #F0F9FF, #ffffff);
+          
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+          
+          /* Transition Properties */
+          opacity: 1;
+          visibility: visible;
+          transition: opacity 0.6s ease-out, visibility 0.6s;
+          will-change: opacity;
+        }
+        
+        /* Ensure Logo stays colored (Blue) on mobile shell */
+        #app-shell img {
+           /* No filter needed for blue logo on light background */
+           filter: none; 
+        }
+
+        /* 
+           State: App Ready 
+           Added by App.tsx when React is mounted and painted
+        */
+        body.app-ready #root {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        body.app-ready #app-shell {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+      }
+
+      /* =========================================
+         DESKTOP PRESERVATION (> 1024px)
+         Strictly revert to default behavior.
+         ========================================= */
+      @media (min-width: 1025px) {
+        html, body {
+          margin: 0; 
+          padding: 0;
+          background-color: #f0f9ff;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Hide the mobile shell completely */
+        #app-shell {
+          display: none !important;
+        }
+
+        /* Ensure root is always visible immediately */
+        #root {
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
       }
     </style>
   <script type="importmap">
@@ -37,12 +169,28 @@
     "react-dom": "https://esm.sh/react-dom@18.2.0",
     "recharts": "https://esm.sh/recharts@2.12.7?deps=react@18.2.0,react-dom@18.2.0",
     "lucide-react": "https://esm.sh/lucide-react@0.363.0?deps=react@18.2.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.1/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0"
   }
 }
 </script>
 </head>
   <body>
+    <!-- 
+       STATIC APP SHELL
+       Visible ONLY on mobile.
+       Matches AuthScreen gradient.
+    -->
+    <div id="app-shell">
+      <img 
+        src="https://upload.wikimedia.org/wikipedia/commons/2/20/ZTE-logo.svg" 
+        alt="ZTE" 
+        style="width: 120px; height: auto; display: block;"
+      />
+    </div>
+
+    <!-- React Root -->
     <div id="root"></div>
   </body>
 </html>

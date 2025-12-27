@@ -1,5 +1,13 @@
 import { Task } from './types';
 
+// Helper to get local date string YYYY-MM-DD
+export const toLocalDateString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const getDaysInMonth = (year: number, month: number) => {
   return new Date(year, month + 1, 0).getDate();
 };
@@ -26,31 +34,44 @@ export const generateCalendarGrid = (year: number, month: number) => {
   return days;
 };
 
-export const parseCSV = (content: string): Partial<Task>[] => {
+// Return both the task object and the extracted employee name for user creation
+export const parseCSV = (content: string): { task: Partial<Task>, employeeName: string }[] => {
   const lines = content.split('\n');
-  const tasks: Partial<Task>[] = [];
+  const results: { task: Partial<Task>, employeeName: string }[] = [];
   
-  // Simple CSV parser assuming specific order or header presence
-  // Format assumption: EmployeeID, Name, Title, Description, Category, Start, End
+  // Format based on instructions: EmployeeID, Name, Title, Category, Start, End
+  // Index: 0, 1, 2, 3, 4, 5
   
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
-    const parts = line.split(',');
+    // Handle CSV quoting for fields that might contain commas
+    // Simple regex split for CSV handling quoted strings roughly
+    // const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    // For simplicity and matching typical Excel CSV export without quotes for simple data:
+    const parts = line.split(',').map(p => p.trim());
+
     if (parts.length >= 6) {
-      tasks.push({
-        employeeId: parts[0]?.trim(),
-        title: parts[2]?.trim(),
-        description: parts[3]?.trim() || '',
-        category: parts[4]?.trim() || 'General',
-        startDate: parts[5]?.trim(),
-        endDate: parts[6]?.trim() || parts[5]?.trim(),
-        status: 'pending'
+      // Basic validation for mandatory fields
+      if (!parts[0] || !parts[4]) continue;
+
+      results.push({
+        task: {
+          employeeId: parts[0],
+          title: parts[2] || 'Untitled Task',
+          category: parts[3] || 'General',
+          // If description exists as 7th column, use it, else empty
+          description: parts.length > 6 ? parts[6] : '',
+          startDate: parts[4],
+          endDate: parts[5] || parts[4],
+          status: 'pending'
+        },
+        employeeName: parts[1] // Extract name from 2nd column
       });
     }
   }
-  return tasks;
+  return results;
 };
 
 export const generateColor = (str: string) => {
@@ -64,10 +85,8 @@ export const generateColor = (str: string) => {
 
 export const getPeriodRange = (period: 'day' | 'week' | 'month') => {
   const now = new Date();
-  // Reset time to avoid confusion, though we work with YYYY-MM-DD strings mostly
-  now.setHours(0,0,0,0);
-
-  const todayStr = now.toISOString().split('T')[0];
+  
+  const todayStr = toLocalDateString(now);
   
   let startStr = todayStr;
   let endStr = todayStr;
@@ -80,13 +99,13 @@ export const getPeriodRange = (period: 'day' | 'week' | 'month') => {
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
     
-    startStr = start.toISOString().split('T')[0];
-    endStr = end.toISOString().split('T')[0];
+    startStr = toLocalDateString(start);
+    endStr = toLocalDateString(end);
   } else if (period === 'month') {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    startStr = start.toISOString().split('T')[0];
-    endStr = end.toISOString().split('T')[0];
+    startStr = toLocalDateString(start);
+    endStr = toLocalDateString(end);
   }
 
   return { start: startStr, end: endStr };

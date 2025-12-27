@@ -1,22 +1,52 @@
+
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context';
 import { DICTIONARY } from '../constants';
+import { toLocalDateString } from '../utils';
+import { getEfficiencyAnalysis } from '../geminiService';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { CheckCircle, Clock, CalendarDays, CalendarRange, Calendar } from 'lucide-react';
+import { CheckCircle, Clock, CalendarDays, CalendarRange, Calendar, Sparkles, Loader2 } from 'lucide-react';
 
 export const StatsSidebar: React.FC = () => {
-  const { user, tasks, language } = useApp();
+  const { user, tasks, language, filterUserId, filterCategory } = useApp();
   const t = DICTIONARY[language];
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week');
+  
+  // AI State
+  const [aiEfficiencyInsight, setAiEfficiencyInsight] = useState<string>('');
+  const [isLoadingInsight, setIsLoadingInsight] = useState(false);
 
   if (!user) return null;
 
-  // Filter tasks for current user
-  const myTasks = useMemo(() => tasks.filter(task => task.employeeId === user.employeeId), [tasks, user.employeeId]);
+  // Filter tasks: Admin sees ALL tasks, Regular user sees ONLY their own.
+  // NOW includes support for active filters (User & Category) from Context.
+  const relevantTasks = useMemo(() => {
+      let filtered = tasks;
 
+      // 1. User Filter
+      if (user.role === 'admin') {
+          // If admin selected a specific user, filter to that user.
+          if (filterUserId !== 'all') {
+              filtered = filtered.filter(task => task.employeeId === filterUserId);
+          }
+      } else {
+          // Regular users always only see themselves
+          filtered = filtered.filter(task => task.employeeId === user.employeeId);
+      }
+
+      // 2. Category Filter (Applied to everyone)
+      if (filterCategory !== 'all') {
+          filtered = filtered.filter(task => task.category === filterCategory);
+      }
+
+      return filtered;
+  }, [tasks, user.employeeId, user.role, filterUserId, filterCategory]);
+
+  // filteredTasks is only for the specific period view visualization (Pie chart)
   const filteredTasks = useMemo(() => {
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    // Fix: Use local date string instead of UTC-based toISOString
+    const todayStr = toLocalDateString(now);
     
     // Day Range
     const startOfDay = todayStr;
@@ -29,22 +59,18 @@ export const StatsSidebar: React.FC = () => {
     const endOfWeekDate = new Date(startOfWeekDate);
     endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
     
-    const startOfWeek = startOfWeekDate.toISOString().split('T')[0];
-    const endOfWeek = endOfWeekDate.toISOString().split('T')[0];
+    const startOfWeek = toLocalDateString(startOfWeekDate);
+    const endOfWeek = toLocalDateString(endOfWeekDate);
 
     // Month Range
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    const startOfMonth = toLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1));
+    const endOfMonth = toLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
-    return myTasks.filter(task => {
+    return relevantTasks.filter(task => {
         const taskStart = task.startDate;
         const taskEnd = task.endDate;
 
         // Check overlapping intervals
-        // interval A = [taskStart, taskEnd]
-        // interval B = [periodStart, periodEnd]
-        // Overlap if taskStart <= periodEnd AND taskEnd >= periodStart
-        
         if (period === 'day') {
             return taskStart <= endOfDay && taskEnd >= startOfDay;
         } else if (period === 'week') {
@@ -53,13 +79,25 @@ export const StatsSidebar: React.FC = () => {
             return taskStart <= endOfMonth && taskEnd >= startOfMonth;
         }
     });
-  }, [myTasks, period]);
+  }, [relevantTasks, period]);
 
   const completed = filteredTasks.filter(t => t.status === 'completed').length;
   const pending = filteredTasks.filter(t => t.status === 'pending').length;
   const total = filteredTasks.length;
   
   const completionRate = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  const handleAnalyzeEfficiency = async () => {
+    if (isLoadingInsight) return;
+    setIsLoadingInsight(true);
+    
+    // Pass ALL relevant tasks (not just the filtered period view) to AI for holistic analysis
+    // This allows AI to see global overdue tasks and full backlog for the SELECTED scope.
+    const insight = await getEfficiencyAnalysis(relevantTasks, period, language);
+    
+    setAiEfficiencyInsight(insight);
+    setIsLoadingInsight(false);
+  };
 
   const data = [
     { name: t.completed, value: completed },
@@ -93,7 +131,11 @@ export const StatsSidebar: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">{t.stats} ({t[period]})</h3>
+        <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t.stats} ({t[period]})</h3>
+            {user.role === 'admin' && filterUserId === 'all' && <span className="text-[10px] bg-blue-100 text-zte-blue px-1.5 py-0.5 rounded font-bold">{t.allUsers}</span>}
+        </div>
+        
         <div className="flex items-center justify-between mb-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">{t.totalTasks}</span>
             <span className="text-xl font-bold text-zte-blue">{total}</span>
@@ -141,22 +183,43 @@ export const StatsSidebar: React.FC = () => {
          </div>
       </div>
 
-      <div className="flex-1 bg-gradient-to-br from-zte-blue to-zte-dark rounded-lg p-4 text-white shadow-md">
-        <h4 className="font-bold mb-2 opacity-90">{t.efficiency}</h4>
+      <div className="flex-1 bg-gradient-to-br from-zte-blue to-zte-dark rounded-lg p-4 text-white shadow-md relative group">
+        <div className="flex justify-between items-start mb-2">
+           <h4 className="font-bold opacity-90">{t.efficiency}</h4>
+           <button 
+             onClick={handleAnalyzeEfficiency} 
+             disabled={isLoadingInsight}
+             className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-1 rounded-full flex items-center gap-1 transition-all"
+           >
+             {isLoadingInsight ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+             Analyze
+           </button>
+        </div>
+        
         <div className="space-y-3">
-            {completionRate === 100 && total > 0 ? (
+            {total === 0 ? (
+                 <div className="flex items-center gap-2">
+                    <Calendar size={16} className="text-white/70" />
+                    <span className="text-sm opacity-80">{t.noTasksScheduled}</span>
+                 </div>
+            ) : completionRate === 100 ? (
                 <div className="flex items-center gap-2">
                     <CheckCircle size={16} className="text-emerald-300" />
-                    <span className="text-sm opacity-80">{t.allCaughtUp} {t[period]}!</span>
+                    <span className="text-sm opacity-80">{t[`allCaughtUp_${period}` as keyof typeof t]}</span>
                 </div>
             ) : (
                 <div className="flex items-center gap-2">
                     <Clock size={16} className="text-amber-300" />
-                    <span className="text-sm opacity-80">{pending} {t.tasksRemaining} {t[period]}</span>
+                    <span className="text-sm opacity-80">
+                        {language === 'zh' 
+                            ? `${t[`tasksRemaining_${period}` as keyof typeof t]}: ${pending}` 
+                            : `${pending} ${t[`tasksRemaining_${period}` as keyof typeof t]}`
+                        }
+                    </span>
                 </div>
             )}
-            <div className="text-xs opacity-60 mt-2 border-t border-white/20 pt-2">
-               {t.efficiencyTip}
+            <div className="text-xs opacity-70 mt-2 border-t border-white/20 pt-2 min-h-[40px] italic">
+               {aiEfficiencyInsight || t.efficiencyTip}
             </div>
         </div>
       </div>
