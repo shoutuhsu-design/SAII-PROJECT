@@ -23,10 +23,6 @@ interface AppContextType extends AppState {
   addComment: (comment: Comment) => Promise<void>; // New Action
   markNotificationsRead: () => void;
   clearNotifications: () => void;
-  // Filter Setters
-  setFilterUserId: (id: string) => void;
-  setFilterCategory: (cat: string) => void;
-  setFilterStatus: (status: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -113,11 +109,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return saved ? JSON.parse(saved) : null;
     } catch { return null; }
   });
-
-  // --- Shared Filter State ---
-  const [filterUserId, setFilterUserId] = useState('all');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
 
   // --- Data State (Supabase) ---
   const [users, setUsers] = useState<User[]>([]);
@@ -334,11 +325,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await supabase.from('users').update({ active_sessions: newCount }).eq('id', user.id);
     }
     
-    // Reset Shared Filters on Logout
-    setFilterUserId('all');
-    setFilterCategory('all');
-    setFilterStatus('all');
-
     // Requirement 1: Clear Cache / State on Logout
     setUser(null);
     setTasks([]);
@@ -535,13 +521,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider value={{
       user, users, tasks, comments, language, theme, notifications,
-      filterUserId, filterCategory, filterStatus,
       login, logout, register, setLanguage, setTheme,
       addTask, updateTask, deleteTask, deleteTasks, importTasks,
       addUser, addUsers, updateUser, deleteUser,
       addComment,
-      markNotificationsRead, clearNotifications,
-      setFilterUserId, setFilterCategory, setFilterStatus
+      markNotificationsRead, clearNotifications
     }}>
       {children}
     </AppContext.Provider>

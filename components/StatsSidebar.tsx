@@ -8,7 +8,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CheckCircle, Clock, CalendarDays, CalendarRange, Calendar, Sparkles, Loader2 } from 'lucide-react';
 
 export const StatsSidebar: React.FC = () => {
-  const { user, tasks, language, filterUserId, filterCategory } = useApp();
+  const { user, tasks, language } = useApp();
   const t = DICTIONARY[language];
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week');
   
@@ -19,28 +19,13 @@ export const StatsSidebar: React.FC = () => {
   if (!user) return null;
 
   // Filter tasks: Admin sees ALL tasks, Regular user sees ONLY their own.
-  // NOW includes support for active filters (User & Category) from Context.
+  // relevantTasks contains ALL tasks for the user (global scope)
   const relevantTasks = useMemo(() => {
-      let filtered = tasks;
-
-      // 1. User Filter
       if (user.role === 'admin') {
-          // If admin selected a specific user, filter to that user.
-          if (filterUserId !== 'all') {
-              filtered = filtered.filter(task => task.employeeId === filterUserId);
-          }
-      } else {
-          // Regular users always only see themselves
-          filtered = filtered.filter(task => task.employeeId === user.employeeId);
+          return tasks;
       }
-
-      // 2. Category Filter (Applied to everyone)
-      if (filterCategory !== 'all') {
-          filtered = filtered.filter(task => task.category === filterCategory);
-      }
-
-      return filtered;
-  }, [tasks, user.employeeId, user.role, filterUserId, filterCategory]);
+      return tasks.filter(task => task.employeeId === user.employeeId);
+  }, [tasks, user.employeeId, user.role]);
 
   // filteredTasks is only for the specific period view visualization (Pie chart)
   const filteredTasks = useMemo(() => {
@@ -92,7 +77,7 @@ export const StatsSidebar: React.FC = () => {
     setIsLoadingInsight(true);
     
     // Pass ALL relevant tasks (not just the filtered period view) to AI for holistic analysis
-    // This allows AI to see global overdue tasks and full backlog for the SELECTED scope.
+    // This allows AI to see global overdue tasks and full backlog.
     const insight = await getEfficiencyAnalysis(relevantTasks, period, language);
     
     setAiEfficiencyInsight(insight);
@@ -133,7 +118,7 @@ export const StatsSidebar: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex justify-between items-center mb-2">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t.stats} ({t[period]})</h3>
-            {user.role === 'admin' && filterUserId === 'all' && <span className="text-[10px] bg-blue-100 text-zte-blue px-1.5 py-0.5 rounded font-bold">{t.allUsers}</span>}
+            {user.role === 'admin' && <span className="text-[10px] bg-blue-100 text-zte-blue px-1.5 py-0.5 rounded font-bold">{t.allUsers}</span>}
         </div>
         
         <div className="flex items-center justify-between mb-4">

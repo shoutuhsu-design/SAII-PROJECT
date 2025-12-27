@@ -7,20 +7,16 @@ import { DICTIONARY } from '../constants';
 import { Task } from '../types';
 
 export const Calendar: React.FC = () => {
-  const { 
-    user, users, tasks, comments, language, 
-    addTask, updateTask, deleteTask, addComment,
-    filterUserId, setFilterUserId,
-    filterCategory, setFilterCategory,
-    filterStatus, setFilterStatus 
-  } = useApp();
-  
+  const { user, users, tasks, comments, language, addTask, updateTask, deleteTask, addComment } = useApp();
   const t = DICTIONARY[language];
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   
-  // NOTE: Filters are now managed in Context (useApp) to share state with StatsSidebar
+  // Filter States
+  const [filterUserId, setFilterUserId] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Task>>({});
@@ -288,7 +284,12 @@ export const Calendar: React.FC = () => {
         </div>
       )}
 
-      {/* Calendar Grid Area */}
+      {/* Calendar Grid Area 
+          Fix for Mobile Layout:
+          - Use `w-full h-auto` on mobile to allow grid to expand indefinitely based on content.
+          - Removed `flex-1` on mobile to prevent flex shrink behavior when content is large.
+          - Kept `lg:flex-1 lg:h-full` for desktop dual-pane layout.
+      */}
       <div className="w-full h-auto shrink-0 lg:flex-1 lg:h-full lg:shrink bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col overflow-visible lg:overflow-hidden transition-colors relative z-0">
         {/* Toolbar */}
         <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 flex flex-col xl:flex-row items-center justify-between gap-3 bg-white dark:bg-gray-800 sticky top-0 z-20">
@@ -352,7 +353,12 @@ export const Calendar: React.FC = () => {
             ))}
         </div>
 
-        {/* Grid Body */}
+        {/* Grid Body 
+            Mobile Fix: 
+            - auto-rows-auto: Allows mobile rows to grow as tall as needed (no cutoff).
+            - h-auto: Grid takes natural height.
+            - Desktop: lg:auto-rows-fr (equal height) and lg:flex-1 (fill container).
+        */}
         <div className="grid grid-cols-7 h-auto lg:flex-1 auto-rows-auto lg:auto-rows-fr bg-white dark:bg-gray-800 lg:overflow-y-auto relative z-10">
             {calendarDays.map((day, i) => {
                 if (!day) return <div key={`empty-${i}`} className="bg-gray-50/50 dark:bg-gray-900/30 border-r border-b border-gray-100 dark:border-gray-700" />;

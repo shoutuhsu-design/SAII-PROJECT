@@ -1,4 +1,5 @@
 
+
 export type Role = 'admin' | 'user';
 
 export type UserStatus = 'active' | 'pending' | 'rejected';
@@ -57,8 +58,4 @@ export interface AppState {
   notifications: AppNotification[];
   language: Language;
   theme: Theme;
-  // Shared Filter States
-  filterUserId: string;
-  filterCategory: string;
-  filterStatus: string;
 }
