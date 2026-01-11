@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#F8FAFC" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <title>ZTE Southern Africa Engineering Service Office</title>
+    
+    <!-- Capacitor Inject -->
+    <script src="capacitor.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Libraries loaded via CDN for simplicity, though package.json now handles core React logic -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- FIX: Polyfill for process.env -->
+    <script>
+      window.process = {
+        env: {
+          NODE_ENV: 'production'
+        }
+      };
+    </script>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+            },
+            colors: {
+              zte: {
+                blue: '#008ED3', 
+                light: '#F0F9FF', 
+                dark: '#0071A9',
+                accent: '#0EA5E9'
+              }
+            },
+            boxShadow: {
+              'premium': '0 4px 20px -2px rgba(0, 142, 211, 0.08), 0 2px 8px -1px rgba(0, 0, 0, 0.04)',
+              'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
+              'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.03)'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #F8FAFC;
+        -webkit-font-smoothing: antialiased;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      .bg-business {
+        background: radial-gradient(circle at top right, #F0F9FF 0%, #FFFFFF 100%);
+      }
+
+      :root, .light { color-scheme: light; }
+      .dark { color-scheme: dark; }
+      
+      #app-shell { display: none; }
+      @media (max-width: 1024px) {
+        #app-shell {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #FFFFFF;
+        }
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "framer-motion": "https://esm.sh/framer-motion@^12.25.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-business">
+    <div id="app-shell">
+      <div class="flex flex-col items-center">
+         <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/ZTE-logo.svg" alt="ZTE" style="width: 100px; height: auto; opacity: 0.8;" />
+         <div class="mt-6 w-32 h-1 bg-gray-100 rounded-full overflow-hidden">
+             <div class="h-full bg-zte-blue animate-[loading_1.5s_infinite_ease-in-out]" style="width: 40%"></div>
+         </div>
+      </div>
+    </div>
+    <div id="root"></div>
+    
+    <!-- 
+       Vite 会在构建时自动转换这个 script 标签。
+       在开发模式下它加载 tsx，在生产构建后它会指向编译好的 js bundle。
+    -->
+    <script type="module" src="./index.tsx"></script>
+
+    <style>
+      @keyframes loading {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(300%); }
+      }
+    </style>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

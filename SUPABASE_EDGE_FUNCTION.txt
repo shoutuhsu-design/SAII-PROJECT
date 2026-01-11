@@ -1,0 +1,94 @@
+
+// 部署命令: supabase functions deploy fcm-notifier
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+serve(async (req: Request) => {
+  // 1. 处理预检请求
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders, status: 200 })
+  }
+
+  try {
+    // 初始化客户端
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // 解析请求体
+    const bodyData = await req.json();
+    const { targetEmployeeId, title, body } = bodyData;
+
+    console.log(`[FCM] 收到推送请求: 目标=${targetEmployeeId}, 标题=${title}`);
+
+    // 2. 查找目标用户的 Token
+    const { data: user, error: userError } = await supabaseClient
+      .from('users')
+      .select('fcm_token')
+      .eq('employee_id', String(targetEmployeeId))
+      .maybeSingle();
+
+    if (userError || !user?.fcm_token) {
+      console.warn(`[FCM] 无法发送: 用户 ${targetEmployeeId} 未在线或无 Token`);
+      return new Response(JSON.stringify({ 
+          success: false, 
+          error: "User token not found",
+          received: bodyData 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200, // 逻辑错误返回 200 避免跨域崩坏
+      });
+    }
+
+    // 3. 获取 FCM Key
+    const FCM_SERVER_KEY = Deno.env.get('FCM_SERVER_KEY');
+    if (!FCM_SERVER_KEY) {
+       throw new Error("Edge Function Secrets 中未配置 FCM_SERVER_KEY");
+    }
+
+    // 4. 执行推送请求 (Legacy HTTP 协议)
+    const fcmResponse = await fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `key=${FCM_SERVER_KEY}`,
+      },
+      body: JSON.stringify({
+        to: user.fcm_token,
+        notification: {
+          title: title,
+          body: body,
+          sound: "default",
+          badge: "1",
+          click_action: "FCM_PLUGIN_ACTIVITY"
+        },
+        priority: 'high',
+        data: {
+          landing_page: "/calendar"
+        }
+      }),
+    });
+
+    const fcmResult = await fcmResponse.json();
+    console.log("[FCM] 响应结果:", fcmResult);
+
+    return new Response(JSON.stringify(fcmResult), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+
+  } catch (error) {
+    console.error("[EdgeFunction] 崩溃:", error.message);
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200, // 保持 200 响应以看到 JSON 错误详情而非跨域报错
+    });
+  }
+})
