@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useApp } from '../context';
-import { generateCalendarGrid, toLocalDateString, getDaysInMonth, generateColor } from '../utils';
-import { ChevronLeft, ChevronRight, Plus, X, Check, Trash2, Edit2, Calendar as CalendarIcon, Filter, AlertCircle, ChevronDown, Search, GripHorizontal, BellRing, MessageSquare, Send, User, Smartphone, Clock } from 'lucide-react';
+import { generateCalendarGrid, toLocalDateString, generateColor } from '../utils';
+import { ChevronLeft, ChevronRight, Plus, X, Check, Trash2, Edit2, Calendar as CalendarIcon, Filter, AlertCircle, ChevronDown, BellRing, MessageSquare, Send, User, Smartphone } from 'lucide-react';
 import { DICTIONARY } from '../constants';
 import { Task } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -363,14 +363,16 @@ export const Calendar: React.FC = () => {
   const getTaskStyle = (task: Task) => {
       const today = toLocalDateString(new Date());
       const isOverdue = task.endDate < today && task.status !== 'completed';
-      let styleClass = "border-l-[3px] shadow-sm ";
-      let bgColor = task.status === 'completed' ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200" : (isOverdue ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200" : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200");
-      let borderColor = task.status === 'completed' ? "border-green-500" : (isOverdue ? "border-red-500" : "border-zte-blue"); 
       
-      // Mobile Label Color - Text friendly
-      let mobileColor = task.status === 'completed' ? "bg-green-500 text-white" : (isOverdue ? "bg-red-500 text-white" : "bg-zte-blue text-white");
+      // Professional Business Look: Left Border Strip, lighter backgrounds
+      let bgColor = task.status === 'completed' ? "bg-emerald-50 dark:bg-emerald-900/20" : (isOverdue ? "bg-red-50 dark:bg-red-900/20" : "bg-white dark:bg-gray-700/50");
+      let textColor = task.status === 'completed' ? "text-emerald-800 dark:text-emerald-200" : (isOverdue ? "text-red-800 dark:text-red-200" : "text-gray-700 dark:text-gray-200");
+      let borderColor = task.status === 'completed' ? "border-emerald-500" : (isOverdue ? "border-red-500" : "border-zte-blue"); 
+      
+      // Added subtle shadow and border for distinct card look
+      let className = `border-l-[3px] shadow-sm ${bgColor} ${textColor} ${borderColor}`;
 
-      return { className: `${styleClass} ${bgColor} ${borderColor}`, isOverdue, mobileColor };
+      return { className, isOverdue };
   };
 
   const getUserColor = (empId: string) => users.find(u => u.employeeId === empId)?.color || '#9ca3af';
@@ -652,7 +654,7 @@ export const Calendar: React.FC = () => {
       {/* --- Calendar Area --- */}
       <motion.div 
         layout
-        className="w-full shrink-0 lg:flex-1 lg:h-full lg:shrink bg-white dark:bg-gray-800 rounded-xl shadow-premium flex flex-col overflow-hidden relative z-10"
+        className="w-full shrink-0 lg:flex-1 lg:h-full lg:shrink bg-white dark:bg-gray-800 rounded-xl shadow-premium flex flex-col overflow-hidden relative z-10 border border-gray-100 dark:border-gray-700"
         initial={false}
         animate={{ 
             height: isDesktop 
@@ -660,7 +662,6 @@ export const Calendar: React.FC = () => {
                     : 'auto',
         }}
         transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-        // Removed main container gesture to prevent scroll blocking
       >
         <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 flex flex-col xl:flex-row items-center justify-between gap-3 bg-white dark:bg-gray-800 sticky top-0 z-20">
             <div className="flex items-center gap-2 sm:gap-4 w-full xl:w-auto justify-between xl:justify-start">
@@ -671,19 +672,19 @@ export const Calendar: React.FC = () => {
             
             <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto justify-end">
                  {/* Desktop Filter View */}
-                 <div className="hidden sm:flex items-center gap-2 bg-gray-50 dark:bg-gray-700 p-1 rounded-md border border-gray-200 dark:border-gray-600 shrink-0">
+                 <div className="hidden sm:flex items-center gap-2 bg-gray-50 dark:bg-gray-700 p-1 rounded-md border border-gray-200 dark:border-gray-600 shrink-0 shadow-inner">
                     <Filter size={14} className="text-gray-400 ml-1" />
                     {isAdmin && (
-                        <select value={filterUserId} onChange={(e) => setFilterUserId(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 w-16 sm:w-32 truncate">
+                        <select value={filterUserId} onChange={(e) => setFilterUserId(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 w-16 sm:w-32 truncate font-medium">
                             <option value="all">{t.allUsers}</option>
                             {users.map(u => <option key={u.id} value={u.employeeId}>{u.name}</option>)}
                         </select>
                     )}
-                    <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 border-l border-gray-200 dark:border-gray-600 w-16 sm:w-32 truncate">
+                    <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 border-l border-gray-200 dark:border-gray-600 w-16 sm:w-32 truncate font-medium">
                         <option value="all">{t.filterCategory}: {t.all}</option>
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 border-l border-gray-200 dark:border-gray-600 w-16 sm:w-32 truncate">
+                    <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-transparent text-[10px] sm:text-sm text-gray-700 dark:text-gray-200 outline-none p-1 border-l border-gray-200 dark:border-gray-600 w-16 sm:w-32 truncate font-medium">
                         <option value="all">{t.filterStatus}: {t.all}</option>
                         <option value="pending">{t.pending}</option>
                         <option value="completed">{t.completed}</option>
@@ -699,25 +700,32 @@ export const Calendar: React.FC = () => {
                     {isAdmin && (
                         <button 
                             onClick={(e) => { e.stopPropagation(); setMobileFilterType('user'); }} 
-                            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors ${filterUserId !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
+                            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors shadow-sm ${filterUserId !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
                         >
                            {userOptions.find(o => o.value === filterUserId)?.label || t.allUsers}
                         </button>
                     )}
                     <button 
                         onClick={(e) => { e.stopPropagation(); setMobileFilterType('category'); }} 
-                        className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors ${filterCategory !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
+                        className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors shadow-sm ${filterCategory !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
                     >
                          {filterCategory === 'all' ? t.category : filterCategory}
                     </button>
                     <button 
                         onClick={(e) => { e.stopPropagation(); setMobileFilterType('status'); }} 
-                        className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors ${filterStatus !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
+                        className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[10px] font-medium border shrink-0 transition-colors shadow-sm ${filterStatus !== 'all' ? 'bg-zte-blue text-white border-zte-blue' : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600'}`}
                     >
                          {statusOptions.find(o => o.value === filterStatus)?.label || t.status}
                     </button>
                  </div>
             </div>
+        </div>
+        
+        {/* Calendar Header Days */}
+        <div className="grid grid-cols-7 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => (
+                 <div key={i} className="py-2 text-center text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">{d}</div>
+             ))}
         </div>
 
         <motion.div 
@@ -726,7 +734,7 @@ export const Calendar: React.FC = () => {
         >
             <AnimatePresence initial={false} mode="popLayout">
                 {displayedDays.map((day, i) => {
-                    if (!day) return <motion.div key={`empty-${i}`} layout className="bg-gray-50/50 dark:bg-gray-900/30 border-r border-b border-gray-100 dark:border-gray-700" />;
+                    if (!day) return <motion.div key={`empty-${i}`} layout className="bg-gray-50/20 dark:bg-gray-900/30 border-r border-b border-gray-100 dark:border-gray-700/50" />;
                     
                     const dateStr = toLocalDateString(day);
                     const isToday = day.toDateString() === new Date().toDateString();
@@ -743,20 +751,20 @@ export const Calendar: React.FC = () => {
                             onClick={() => handleDayClick(day)}
                             // Mark this element as a drop target with its date
                             data-date={dateStr}
-                            className={`min-h-[60px] sm:min-h-[100px] border-r border-b border-gray-100 dark:border-gray-700 p-1 cursor-pointer transition-colors relative flex flex-col group active:bg-gray-100 dark:active:bg-gray-800
-                                ${isSelected ? 'bg-blue-50/50 dark:bg-gray-800 ring-2 ring-inset ring-zte-blue z-20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'}
-                                ${isToday ? 'bg-amber-50 dark:bg-amber-900/10' : ''}
+                            className={`min-h-[70px] sm:min-h-[110px] border-r border-b border-gray-100 dark:border-gray-700/50 p-1.5 cursor-pointer transition-colors relative flex flex-col group active:bg-gray-50 dark:active:bg-gray-800
+                                ${isSelected ? 'bg-blue-50/40 dark:bg-gray-800 ring-2 ring-inset ring-zte-blue z-20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'}
+                                ${isToday ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}
                             `}
                         >
-                            <div className={`w-full flex justify-center py-0.5 sm:py-1 mb-0.5 pointer-events-none ${isToday ? 'font-bold text-zte-blue' : 'text-gray-500 dark:text-gray-400'}`}>
-                                <span className="text-xs sm:text-base">{day.getDate()}</span>
+                            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium mb-1 ${isToday ? 'bg-zte-blue text-white shadow-md' : 'text-gray-500 dark:text-gray-400'}`}>
+                                <span>{day.getDate()}</span>
                             </div>
                             
                             {/* Task Visualization Container */}
                             <div className="flex flex-col gap-1 w-full flex-1 min-h-0">
                                 {/* Slice to prevent overflow, but show more on mobile (labels are small) */}
                                 {dayTasks.slice(0, maxVisibleTasks).map((task) => {
-                                    const { className, isOverdue, mobileColor } = getTaskStyle(task);
+                                    const { className, isOverdue } = getTaskStyle(task);
                                     const isBeingDragged = draggingTaskId === task.id;
                                     
                                     return (
@@ -767,34 +775,26 @@ export const Calendar: React.FC = () => {
                                             dragSnapToOrigin
                                             dragMomentum={false}
                                             // Scale up when dragging for visibility
-                                            whileDrag={{ scale: 1.1, zIndex: 100, opacity: 0.8 }}
+                                            whileDrag={{ scale: 1.05, zIndex: 100, opacity: 0.9, rotate: 2 }}
                                             onDragStart={() => handleDragStart(task)}
                                             onDragEnd={(e, info) => handleDragEnd(e, info, task)}
                                             onClick={(e) => handleTaskClick(e, task)}
                                             className={`touch-none relative ${isBeingDragged ? 'z-50' : ''}`}
                                         >
-                                            {/* Mobile View: Text Label - Now styled like Desktop but colored by Category */}
+                                            {/* Unified Chip Style for Desktop & Mobile */}
                                             <div 
-                                                className={`sm:hidden text-[9px] px-1 py-0.5 mx-0.5 rounded truncate leading-tight mb-0.5 font-medium transition-all ${className}`}
-                                                style={{ borderLeftColor: generateColor(task.category || 'General') }}
-                                            >
-                                                {task.title}
-                                            </div>
-
-                                            {/* Desktop View: Text Pill */}
-                                            <div 
-                                                className={`hidden sm:flex text-[9px] sm:text-xs px-1.5 py-0.5 rounded truncate items-center justify-between hover:shadow-md transition-all cursor-pointer ${className}`}
+                                                className={`text-[9px] sm:text-[10px] px-1.5 py-1 rounded-sm truncate items-center justify-between hover:brightness-95 transition-all cursor-pointer flex gap-1 ${className}`}
                                                 style={{ borderLeftColor: getUserColor(task.employeeId) }}
                                             >
-                                                <span className="truncate leading-tight font-medium">{task.title}</span>
-                                                {isOverdue && <AlertCircle size={8} className="flex-shrink-0 text-red-600" />}
+                                                <span className="truncate font-medium flex-1">{task.title}</span>
+                                                {isOverdue && <AlertCircle size={10} className="flex-shrink-0 text-red-600" />}
                                             </div>
                                         </motion.div>
                                     );
                                 })}
                                 {dayTasks.length > maxVisibleTasks && (
-                                    <div className="text-[9px] sm:text-[10px] text-center text-gray-500 dark:text-gray-400 font-medium leading-none py-0.5">
-                                        +{dayTasks.length - maxVisibleTasks}
+                                    <div className="text-[9px] text-center text-gray-400 dark:text-gray-500 font-medium py-0.5 bg-gray-50 dark:bg-gray-800 rounded-sm">
+                                        +{dayTasks.length - maxVisibleTasks} more
                                     </div>
                                 )}
                             </div>
@@ -806,7 +806,7 @@ export const Calendar: React.FC = () => {
 
         {/* Swipe Handle Indicator - INTERACTIVE: Click to Toggle, Drag to Swipe */}
         <motion.div 
-             className="lg:hidden h-8 flex items-center justify-center bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 shrink-0 cursor-grab active:cursor-grabbing z-20"
+             className="lg:hidden h-8 flex items-center justify-center bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 shrink-0 cursor-grab active:cursor-grabbing z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]"
              onClick={() => setViewMode(prev => prev === 'month' ? 'week' : 'month')}
              onPanEnd={(e, info) => {
                  if (info.offset.y < -10) setViewMode('week');
@@ -820,34 +820,34 @@ export const Calendar: React.FC = () => {
 
       {/* --- TASK LIST / DETAILS PANEL (Shows list for selected day) --- */}
       {/* On Mobile: Flex-auto to expand with content in scrollable root. Desktop: Fixed width. */}
-      <div id="task-details-panel" className="w-full shrink-0 flex-auto lg:flex-none lg:w-96 bg-white dark:bg-gray-800 rounded-xl shadow-premium border-l border-gray-100 dark:border-gray-700 flex flex-col p-4 transition-all relative z-20 pb-safe-bottom min-h-[300px]">
+      <div id="task-details-panel" className="w-full shrink-0 flex-auto lg:flex-none lg:w-96 bg-white dark:bg-gray-800 rounded-xl shadow-premium border border-gray-100 dark:border-gray-700 flex flex-col p-5 transition-all relative z-20 pb-safe-bottom min-h-[300px]">
         {(selectedDate || selectedTask) ? (
             <>
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100 dark:border-gray-700">
                     <h3 className="font-bold text-lg text-gray-800 dark:text-white truncate pr-2 flex-1">
                         {isEditing ? (selectedTask ? t.edit : t.addTask) : (selectedTask ? selectedTask.title : selectedDate?.toLocaleDateString())}
                     </h3>
-                    <div className="flex gap-1.5 flex-shrink-0">
+                    <div className="flex gap-2 flex-shrink-0">
                         {!isEditing && selectedTask && (
                             <>
                                 {isMobileCalendar && (
-                                    <button onClick={() => handleSyncSingleTask(selectedTask)} className="p-1.5 text-purple-500 hover:bg-purple-50 rounded transition-colors active:scale-90" title="Add to Calendar">
+                                    <button onClick={() => handleSyncSingleTask(selectedTask)} className="p-2 text-purple-500 hover:bg-purple-50 rounded-lg transition-colors active:scale-95" title="Add to Calendar">
                                         <Smartphone size={18} />
                                     </button>
                                 )}
                                 {isAdmin && (
-                                    <button onClick={handleRemindClick} className={`p-1.5 rounded transition-all active:scale-90 relative ${remindFeedback ? 'text-green-500 bg-green-50 animate-bounce' : 'text-blue-500 hover:bg-blue-50'}`} title="Remind User">
+                                    <button onClick={handleRemindClick} className={`p-2 rounded-lg transition-all active:scale-95 relative ${remindFeedback ? 'text-green-500 bg-green-50 animate-bounce' : 'text-blue-500 hover:bg-blue-50'}`} title="Remind User">
                                         <BellRing size={18} />
                                     </button>
                                 )}
-                                <button onClick={() => toggleComplete(selectedTask)} className={`p-1.5 rounded-full transition-all active:scale-90 ${selectedTask.status === 'completed' ? 'text-white bg-green-500 shadow-md' : 'text-gray-400 bg-gray-100 dark:bg-gray-700 dark:text-gray-500 hover:text-gray-600'}`}>
+                                <button onClick={() => toggleComplete(selectedTask)} className={`p-2 rounded-lg transition-all active:scale-95 ${selectedTask.status === 'completed' ? 'text-white bg-green-500 shadow-md' : 'text-gray-400 bg-gray-100 dark:bg-gray-700 dark:text-gray-500 hover:text-gray-600'}`}>
                                     <Check size={18} />
                                 </button>
-                                <button onClick={() => { setIsEditing(true); setEditForm(selectedTask); setActiveTab('details'); }} className="p-1.5 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors active:scale-90"><Edit2 size={18}/></button>
+                                <button onClick={() => { setIsEditing(true); setEditForm(selectedTask); setActiveTab('details'); }} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors active:scale-95"><Edit2 size={18}/></button>
                                 {canDeleteTask(selectedTask) && (
-                                    <button onClick={(e) => { e.stopPropagation(); initiateDelete(selectedTask.id); }} className="p-1.5 text-gray-400 hover:text-red-500 rounded transition-colors active:scale-90"><Trash2 size={18} /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); initiateDelete(selectedTask.id); }} className="p-2 text-gray-400 hover:text-red-500 rounded-lg transition-colors active:scale-95"><Trash2 size={18} /></button>
                                 )}
-                                <button onClick={() => { setSelectedTask(null); setSelectedDate(new Date(selectedTask.startDate)); }} className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors active:scale-90"><X size={18}/></button>
+                                <button onClick={() => { setSelectedTask(null); setSelectedDate(new Date(selectedTask.startDate)); }} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors active:scale-95"><X size={18}/></button>
                             </>
                         )}
                         {!isEditing && !selectedTask && (
@@ -860,26 +860,28 @@ export const Calendar: React.FC = () => {
                                      startDate: defaultDate,
                                      endDate: defaultDate
                                  });
-                             }} className="p-1.5 text-white bg-zte-blue hover:bg-zte-dark rounded-full shadow-md active:scale-90"><Plus size={18} /></button>
+                             }} className="flex items-center gap-2 px-4 py-2 text-white bg-zte-blue hover:bg-zte-dark rounded-lg shadow-md active:scale-95 text-sm font-bold transition-all">
+                                <Plus size={16} /> <span>New</span>
+                             </button>
                         )}
                     </div>
                 </div>
 
                 {/* Tabs for Details / Comments (Only when task is selected and not editing) */}
                 {selectedTask && !isEditing && (
-                    <div className="flex gap-4 border-b border-gray-100 dark:border-gray-700 mb-4">
+                    <div className="flex gap-6 border-b border-gray-100 dark:border-gray-700 mb-5">
                         <button 
                             onClick={() => setActiveTab('details')} 
-                            className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'details' ? 'border-zte-blue text-zte-blue' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            className={`pb-2 text-sm font-bold transition-colors border-b-2 ${activeTab === 'details' ? 'border-zte-blue text-zte-blue' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                         >
                             {t.tabDetails}
                         </button>
                         <button 
                             onClick={() => setActiveTab('comments')} 
-                            className={`pb-2 text-sm font-medium transition-colors border-b-2 flex items-center gap-1.5 ${activeTab === 'comments' ? 'border-zte-blue text-zte-blue' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            className={`pb-2 text-sm font-bold transition-colors border-b-2 flex items-center gap-1.5 ${activeTab === 'comments' ? 'border-zte-blue text-zte-blue' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                         >
                             {t.tabComments}
-                            {taskComments.length > 0 && <span className="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full">{taskComments.length}</span>}
+                            {taskComments.length > 0 && <span className="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold">{taskComments.length}</span>}
                         </button>
                     </div>
                 )}
@@ -888,44 +890,44 @@ export const Calendar: React.FC = () => {
                     {isEditing ? (
                         <div className="space-y-4 animate-in fade-in duration-300">
                              <div>
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.taskTitle}</label>
-                                <input className="w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue" value={editForm.title || ''} onChange={e => setEditForm({...editForm, title: e.target.value})} />
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.taskTitle}</label>
+                                <input className="w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue transition-all" value={editForm.title || ''} onChange={e => setEditForm({...editForm, title: e.target.value})} placeholder="Enter task title" />
                              </div>
                              
-                             <div className="grid grid-cols-2 gap-3">
+                             <div className="grid grid-cols-2 gap-4">
                                  <div>
-                                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.start}</label>
+                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.start}</label>
                                      {/* Desktop Native Input */}
                                      <input 
                                         type="date"
                                         required
-                                        className="hidden sm:block w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue bg-white dark:bg-gray-700 min-h-[44px]"
+                                        className="hidden sm:block w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue transition-all"
                                         value={editForm.startDate || toLocalDateString(new Date())}
                                         onChange={(e) => setEditForm({...editForm, startDate: e.target.value})}
                                      />
                                      {/* Mobile Custom Trigger */}
                                      <div 
                                         onClick={() => setMobilePickerType('start')}
-                                        className="sm:hidden w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white bg-white dark:bg-gray-700 min-h-[44px] flex items-center justify-between"
+                                        className="sm:hidden w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white bg-white flex items-center justify-between"
                                      >
                                          <span>{editForm.startDate || toLocalDateString(new Date())}</span>
                                          <CalendarIcon size={16} className="text-gray-400" />
                                      </div>
                                  </div>
                                  <div>
-                                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.end}</label>
+                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.end}</label>
                                      {/* Desktop Native Input */}
                                      <input 
                                         type="date"
                                         required
-                                        className="hidden sm:block w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue bg-white dark:bg-gray-700 min-h-[44px]"
+                                        className="hidden sm:block w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue transition-all"
                                         value={editForm.endDate || toLocalDateString(new Date())}
                                         onChange={(e) => setEditForm({...editForm, endDate: e.target.value})}
                                      />
                                      {/* Mobile Custom Trigger */}
                                      <div 
                                         onClick={() => setMobilePickerType('end')}
-                                        className="sm:hidden w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white bg-white dark:bg-gray-700 min-h-[44px] flex items-center justify-between"
+                                        className="sm:hidden w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white bg-white flex items-center justify-between"
                                      >
                                          <span>{editForm.endDate || toLocalDateString(new Date())}</span>
                                          <CalendarIcon size={16} className="text-gray-400" />
@@ -934,17 +936,17 @@ export const Calendar: React.FC = () => {
                              </div>
 
                              <div>
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.category}</label>
-                                <input className="w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue" value={editForm.category || ''} onChange={e => setEditForm({...editForm, category: e.target.value})} />
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.category}</label>
+                                <input className="w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue transition-all" value={editForm.category || ''} onChange={e => setEditForm({...editForm, category: e.target.value})} placeholder="e.g. Network, Meeting" />
                              </div>
 
                              {/* Assignee Selector for Admin */}
                              {isAdmin && (
                                  <div>
-                                     <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.filterUser}</label>
+                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.filterUser}</label>
                                      {/* Desktop Native Select */}
                                      <select 
-                                        className="hidden sm:block w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue" 
+                                        className="hidden sm:block w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue transition-all bg-white" 
                                         value={editForm.employeeId} 
                                         onChange={e => setEditForm({...editForm, employeeId: e.target.value})}
                                      >
@@ -953,7 +955,7 @@ export const Calendar: React.FC = () => {
                                      {/* Mobile Custom Trigger */}
                                      <div
                                         onClick={() => setMobilePickerType('user')}
-                                        className="sm:hidden w-full border p-2.5 rounded text-sm dark:bg-gray-700 dark:text-white bg-white dark:bg-gray-700 min-h-[44px] flex items-center justify-between"
+                                        className="sm:hidden w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl text-sm dark:bg-gray-700 dark:text-white bg-white flex items-center justify-between"
                                      >
                                          <span className="truncate">{users.find(u => u.employeeId === editForm.employeeId)?.name || 'Select User'}</span>
                                          <ChevronDown size={16} className="text-gray-400" />
@@ -962,43 +964,45 @@ export const Calendar: React.FC = () => {
                              )}
 
                              <div>
-                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">{t.description}</label>
-                                <textarea className="w-full border p-2.5 rounded h-32 text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue resize-none" value={editForm.description || ''} onChange={e => setEditForm({...editForm, description: e.target.value})} />
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">{t.description}</label>
+                                <textarea className="w-full border border-gray-200 dark:border-gray-600 p-3 rounded-xl h-32 text-sm dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-zte-blue resize-none transition-all" value={editForm.description || ''} onChange={e => setEditForm({...editForm, description: e.target.value})} placeholder="Add details..." />
                              </div>
 
                              <div className="flex gap-3 pt-4">
-                                <button onClick={handleSaveTask} className="flex-1 bg-zte-blue text-white py-2 rounded font-bold shadow-sm">{t.save}</button>
-                                <button onClick={() => setIsEditing(false)} className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded font-bold">{t.cancel}</button>
+                                <button onClick={handleSaveTask} className="flex-1 bg-zte-blue hover:bg-zte-dark text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all">{t.save}</button>
+                                <button onClick={() => setIsEditing(false)} className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-3 rounded-xl font-bold transition-all">{t.cancel}</button>
                              </div>
                         </div>
                     ) : (
                         <div className="h-full flex flex-col">
                             {selectedTask ? (
                                 activeTab === 'details' ? (
-                                    <div className="space-y-4 animate-in fade-in duration-300">
+                                    <div className="space-y-5 animate-in fade-in duration-300">
                                         <div className="flex flex-wrap gap-2 items-center">
-                                            <span className="px-2.5 py-1 bg-blue-50 text-zte-blue rounded-md text-xs font-bold uppercase tracking-wide">{selectedTask.category}</span>
-                                            <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide ${selectedTask.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>{selectedTask.status}</span>
+                                            <span className="px-3 py-1 bg-blue-50 text-zte-blue border border-blue-100 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">{selectedTask.category}</span>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border shadow-sm ${selectedTask.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>{selectedTask.status}</span>
                                         </div>
                                         
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <CalendarIcon size={16} />
-                                            <span className="font-medium">{selectedTask.startDate} <span className="text-gray-300 mx-1">→</span> {selectedTask.endDate}</span>
+                                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <CalendarIcon size={18} className="text-gray-400" />
+                                            <span className="font-medium">{selectedTask.startDate} <span className="text-gray-300 mx-2">→</span> {selectedTask.endDate}</span>
                                         </div>
 
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <User size={16} />
-                                            <span className="font-medium">{users.find(u => u.employeeId === selectedTask.employeeId)?.name} <span className="text-gray-300">({selectedTask.employeeId})</span></span>
+                                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                                            <User size={18} className="text-gray-400" />
+                                            <span className="font-medium">{users.find(u => u.employeeId === selectedTask.employeeId)?.name} <span className="text-gray-400 text-xs ml-1">({selectedTask.employeeId})</span></span>
                                         </div>
                                         
-                                        <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-                                            <label className="text-xs font-bold text-gray-400 uppercase mb-2 block">{t.description}</label>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 whitespace-pre-wrap">{selectedTask.description || <span className="italic text-gray-400">{t.noDesc}</span>}</p>
+                                        <div className="pt-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">{t.description}</label>
+                                            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed bg-white dark:bg-gray-700/30 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 whitespace-pre-wrap shadow-inner min-h-[100px]">
+                                                {selectedTask.description || <span className="italic text-gray-400">{t.noDesc}</span>}
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col h-full animate-in fade-in duration-300">
-                                        <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-1">
+                                        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-1">
                                             {taskComments.length === 0 ? (
                                                 <div className="text-center py-10 text-gray-400">
                                                     <MessageSquare size={32} className="mx-auto mb-2 opacity-20" />
@@ -1010,10 +1014,10 @@ export const Calendar: React.FC = () => {
                                                     const isMe = user?.employeeId === comment.employeeId;
                                                     return (
                                                         <div key={comment.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                                                            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold shrink-0" style={{backgroundColor: author?.color, color: '#fff'}}>
+                                                            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold shrink-0 border-2 border-white shadow-sm" style={{backgroundColor: author?.color, color: '#fff'}}>
                                                                 {author?.name.charAt(0)}
                                                             </div>
-                                                            <div className={`max-w-[85%] rounded-2xl p-3 text-sm ${isMe ? 'bg-blue-50 text-blue-900 rounded-tr-none' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'}`}>
+                                                            <div className={`max-w-[85%] rounded-2xl p-3 text-sm shadow-sm ${isMe ? 'bg-blue-50 text-blue-900 rounded-tr-none' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'}`}>
                                                                 <div className="flex justify-between items-center mb-1 gap-4">
                                                                     <span className="font-bold text-xs opacity-70">{author?.name}</span>
                                                                     <span className="text-[10px] opacity-50">{new Date(comment.createdAt).toLocaleDateString()}</span>
@@ -1021,8 +1025,8 @@ export const Calendar: React.FC = () => {
                                                                 <p className="leading-relaxed">{comment.content}</p>
                                                                 {(isMe || isAdmin) && (
                                                                     <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                                                        <button onClick={() => { setNewComment(comment.content); setEditingCommentId(comment.id); }} className="text-[10px] opacity-60 hover:opacity-100 font-bold">{t.edit}</button>
-                                                                        <button onClick={() => deleteComment(comment.id)} className="text-[10px] text-red-500 opacity-60 hover:opacity-100 font-bold">{t.delete}</button>
+                                                                        <button onClick={() => { setNewComment(comment.content); setEditingCommentId(comment.id); }} className="text-[10px] opacity-60 hover:opacity-100 font-bold hover:text-zte-blue">{t.edit}</button>
+                                                                        <button onClick={() => deleteComment(comment.id)} className="text-[10px] text-red-500 opacity-60 hover:opacity-100 font-bold hover:text-red-600">{t.delete}</button>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -1042,7 +1046,7 @@ export const Calendar: React.FC = () => {
                                             <button 
                                                 onClick={handlePostComment}
                                                 disabled={!newComment.trim()}
-                                                className="absolute right-1.5 top-1.5 p-1.5 bg-zte-blue text-white rounded-full disabled:opacity-50 disabled:bg-gray-300 transition-all hover:bg-zte-dark"
+                                                className="absolute right-1.5 top-1.5 p-1.5 bg-zte-blue text-white rounded-full disabled:opacity-50 disabled:bg-gray-300 transition-all hover:bg-zte-dark shadow-sm"
                                             >
                                                 <Send size={16} />
                                             </button>
@@ -1052,16 +1056,22 @@ export const Calendar: React.FC = () => {
                             ) : (
                                 <div className="space-y-3">
                                     {getTasksForDay(selectedDate!).length === 0 ? (
-                                        <div className="text-center text-gray-400 py-10 flex flex-col items-center"><CalendarIcon size={24} className="opacity-20 mb-2" /><p>{t.noTasks}</p></div>
+                                        <div className="text-center text-gray-400 py-12 flex flex-col items-center"><CalendarIcon size={32} className="opacity-10 mb-3" /><p className="text-sm font-medium">{t.noTasks}</p></div>
                                     ) : (
                                         getTasksForDay(selectedDate!).map(task => {
-                                            const { className } = getTaskStyle(task);
+                                            const { className, isOverdue } = getTaskStyle(task);
                                             return (
-                                                <div key={task.id} onClick={(e) => handleTaskClick(e, task)} className={`p-3 border rounded-lg hover:shadow-md cursor-pointer transition-all ${className}`} style={{borderLeftColor: getUserColor(task.employeeId)}}>
-                                                    <div className="font-bold text-sm dark:text-white">{task.title}</div>
-                                                    <div className="text-[10px] text-gray-500 mt-2 flex justify-between items-center">
-                                                        <span className="bg-white/50 px-1.5 py-0.5 rounded font-medium">{task.category}</span>
-                                                        <span className="font-bold">{users.find(u => u.employeeId === task.employeeId)?.name}</span>
+                                                <div key={task.id} onClick={(e) => handleTaskClick(e, task)} className={`p-4 border rounded-xl hover:shadow-md cursor-pointer transition-all ${className}`} style={{borderLeftColor: getUserColor(task.employeeId)}}>
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <div className="font-bold text-sm dark:text-white line-clamp-2 leading-snug">{task.title}</div>
+                                                        {isOverdue && <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Overdue</span>}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 mt-2 flex justify-between items-center">
+                                                        <span className="bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded-md font-medium text-[10px] uppercase tracking-wide">{task.category}</span>
+                                                        <span className="font-bold flex items-center gap-1.5">
+                                                            <div className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: getUserColor(task.employeeId)}}></div>
+                                                            {users.find(u => u.employeeId === task.employeeId)?.name}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             );
@@ -1073,7 +1083,7 @@ export const Calendar: React.FC = () => {
                     )}
                 </div>
             </>
-        ) : <div className="flex flex-col items-center justify-center h-full text-gray-400"><CalendarIcon size={48} className="opacity-10 mb-4" /><p>Select a date to view details</p></div>}
+        ) : <div className="flex flex-col items-center justify-center h-full text-gray-400"><CalendarIcon size={48} className="opacity-10 mb-4" /><p className="font-medium">Select a date to view details</p></div>}
       </div>
     </div>
   );

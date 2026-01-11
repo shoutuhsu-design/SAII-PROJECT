@@ -4,7 +4,7 @@ import { useApp } from '../context';
 import { DICTIONARY } from '../constants';
 import { toLocalDateString } from '../utils';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Image as ImageIcon, AlertCircle, Activity, Briefcase, Trophy, Award, TrendingUp, PieChart as PieChartIcon, Loader2, X, Download, Eye, Clock, FileText, AlertTriangle, ChevronRight, List } from 'lucide-react';
+import { Image as ImageIcon, AlertCircle, Activity, Briefcase, Trophy, Award, TrendingUp, PieChart as PieChartIcon, Loader2, X, Download, Eye, Clock, FileText, AlertTriangle, ChevronRight, List, CheckCircle2 } from 'lucide-react';
 import { uploadFile, getSignedUrl } from '../supabaseClient';
 import { User, Task } from '../types';
 
@@ -308,112 +308,127 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900 custom-scrollbar safe-pb" id="dashboard-content">
       <div className="p-3 sm:p-6 space-y-4 sm:space-y-8 max-w-[1600px] mx-auto pb-24">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-2 border-zte-blue pb-4 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-200 dark:border-gray-700 pb-4 gap-4">
             <div>
                 <h1 className="text-xl sm:text-3xl font-bold uppercase text-gray-800 dark:text-white leading-tight">{t.reportTitle}</h1>
                 <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1">{t.deptName} | {today}</p>
             </div>
             <div className="flex gap-3 self-end">
-                <button onClick={exportImage} disabled={isGeneratingPdf} className="hidden md:flex bg-zte-blue hover:bg-zte-dark text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium items-center gap-2 shadow-sm transition-all active:scale-95 disabled:opacity-50">
+                <button onClick={exportImage} disabled={isGeneratingPdf} className="hidden md:flex bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold items-center gap-2 shadow-sm transition-all active:scale-95 disabled:opacity-50">
                   {isGeneratingPdf ? <Loader2 className="animate-spin" size={16}/> : <ImageIcon size={16}/>}
                   {t.exportPdf}
                 </button>
             </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
-             <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
-                 <div className="absolute right-0 top-0 w-16 sm:w-24 h-16 sm:h-24 bg-blue-50 dark:bg-blue-900/10 rounded-bl-full -mr-4 -mt-4"></div>
-                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10">{t.totalTasks} ({new Date().getFullYear()})</p>
-                 <h3 className="text-xl sm:text-3xl font-extrabold text-gray-800 dark:text-white mt-1 sm:mt-2 relative z-10">{total}</h3>
-                 <div className="h-1 w-6 sm:w-12 bg-blue-500 rounded mt-2 sm:mt-4"></div>
+        {/* Top Summary Cards - Redesigned for Cleaner Business Look */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+                 <div>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t.totalTasks}</p>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">{total}</h3>
+                 </div>
+                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-full text-blue-600 dark:text-blue-400">
+                     <Briefcase size={24} />
+                 </div>
              </div>
-             <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
-                 <div className="absolute right-0 top-0 w-16 sm:w-24 h-16 sm:h-24 bg-emerald-50 dark:bg-emerald-900/10 rounded-bl-full -mr-4 -mt-4"></div>
-                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10">{t.completed}</p>
-                 <h3 className="text-xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 sm:mt-2 relative z-10">{completed}</h3>
-                 <div className="h-1 w-6 sm:w-12 bg-emerald-500 rounded mt-2 sm:mt-4"></div>
+             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+                 <div>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t.completed}</p>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{completed}</h3>
+                 </div>
+                 <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-full text-emerald-600 dark:text-emerald-400">
+                     <CheckCircle2 size={24} />
+                 </div>
              </div>
-             <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
-                 <div className="absolute right-0 top-0 w-16 sm:w-24 h-16 sm:h-24 bg-amber-50 dark:bg-amber-900/10 rounded-bl-full -mr-4 -mt-4"></div>
-                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10">{t.pending}</p>
-                 <h3 className="text-xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1 sm:mt-2 relative z-10">{pending}</h3>
-                 <div className="h-1 w-6 sm:w-12 bg-amber-500 rounded mt-2 sm:mt-4"></div>
+             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+                 <div>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t.pending}</p>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400">{pending}</h3>
+                 </div>
+                 <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-full text-amber-600 dark:text-amber-400">
+                     <Clock size={24} />
+                 </div>
              </div>
-             <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
-                 <div className="absolute right-0 top-0 w-16 sm:w-24 h-16 sm:h-24 bg-red-50 dark:bg-red-900/10 rounded-bl-full -mr-4 -mt-4"></div>
-                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider relative z-10">{t.overdue}</p>
-                 <h3 className="text-xl sm:text-3xl font-extrabold text-red-600 dark:text-red-400 mt-1 sm:mt-2 relative z-10">{overdue}</h3>
-                 <div className="h-1 w-6 sm:w-12 bg-red-500 rounded mt-2 sm:mt-4"></div>
+             <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+                 <div>
+                    <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t.overdue}</p>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-red-600 dark:text-red-400">{overdue}</h3>
+                 </div>
+                 <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-full text-red-600 dark:text-red-400">
+                     <AlertCircle size={24} />
+                 </div>
              </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden">
-                <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-800">
-                     <h3 className="font-bold text-base sm:text-lg flex items-center gap-2 text-red-800 dark:text-red-400"><Award size={20}/> {t.redList}</h3>
+                <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                     <h3 className="font-bold text-sm sm:text-base flex items-center gap-2 text-gray-800 dark:text-white uppercase tracking-wide"><Award size={18} className="text-yellow-500"/> {t.redList}</h3>
                 </div>
-                <div className="p-3 sm:p-4 flex-1">
+                <div className="p-4 flex-1">
                     {honorRollStats.length > 0 ? (
-                        <div className="space-y-2 sm:space-y-3">
+                        <div className="space-y-3">
                             {honorRollStats.map((u, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-2 sm:p-3 bg-white dark:bg-gray-700/30 border border-red-50 dark:border-red-900/30 rounded-lg shadow-sm">
-                                    <div className="flex items-center gap-2 sm:gap-3">
-                                        <div className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-xs sm:text-sm font-bold shadow-sm bg-yellow-400 text-white`}>
-                                            <Trophy size={12}/>
+                                <div key={idx} className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800 border border-yellow-100 dark:border-yellow-900/30 rounded-lg shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shadow-sm bg-yellow-400 text-white`}>
+                                            <Trophy size={14}/>
                                         </div>
                                         <div className="font-bold text-sm text-gray-800 dark:text-white truncate">{u.name}</div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">{u.displayRate}%</div>
-                                        <div className="text-[10px] text-gray-400">{language === 'zh' ? '按期完成率' : 'On-Time Rate'}</div>
+                                        <div className="text-lg font-black text-yellow-600 dark:text-yellow-400">{u.displayRate}%</div>
+                                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">{language === 'zh' ? '按期完成' : 'On-Time'}</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    ) : <div className="text-center py-6 text-gray-400 text-sm">No data.</div>}
+                    ) : <div className="text-center py-8 text-gray-400 text-sm italic">Not enough data to determine honor roll.</div>}
                 </div>
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full">
-                <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-                     <h3 className="font-bold text-base sm:text-lg flex items-center gap-2 text-gray-800 dark:text-white"><AlertCircle size={20}/> {t.overdueAnalysis}</h3>
+                <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                     <h3 className="font-bold text-sm sm:text-base flex items-center gap-2 text-gray-800 dark:text-white uppercase tracking-wide"><AlertCircle size={18} className="text-red-500"/> {t.overdueAnalysis}</h3>
                 </div>
-                <div className="p-3 sm:p-4 flex-1 overflow-y-auto">
+                <div className="p-4 flex-1 overflow-y-auto">
                     {overdueAnalysisData.length > 0 ? (
                         <div className="space-y-2">
                              {overdueAnalysisData.slice(0, 5).map((u, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-2 sm:p-3 bg-white dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 rounded-lg">
+                                <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600 rounded-lg hover:border-red-200 transition-colors">
                                     <div className="font-bold text-sm text-gray-800 dark:text-white">{u.name}</div>
-                                    <div className="text-right"><div className="text-lg font-bold text-red-600">{u.count}</div></div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-400">Total: {u.count}</span>
+                                        <div className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center font-bold text-xs">{u.count}</div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                    ) : <div className="text-center py-6 text-gray-400 text-sm">Great performance!</div>}
+                    ) : <div className="text-center py-8 text-gray-400 text-sm flex flex-col items-center"><CheckCircle2 size={24} className="mb-2 text-green-500 opacity-50"/>Great performance!</div>}
                 </div>
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full">
-                <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-                     <h3 className="font-bold text-base sm:text-lg flex items-center gap-2 text-gray-800 dark:text-white"><Activity className="text-amber-500" size={20}/> {t.anomalyDetection}</h3>
-                     {/* 4. Add Details Button */}
+                <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+                     <h3 className="font-bold text-sm sm:text-base flex items-center gap-2 text-gray-800 dark:text-white uppercase tracking-wide"><Activity className="text-purple-500" size={18}/> {t.anomalyDetection}</h3>
                      <button 
                         onClick={() => setShowAnomalyModal(true)}
-                        className="p-1.5 text-gray-500 hover:text-zte-blue hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-zte-blue hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
                         title="View Details"
                      >
                          <Eye size={16} />
                      </button>
                 </div>
-                <div className="p-3 sm:p-4 flex flex-col justify-center h-full">
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl text-center border border-amber-100">
-                            <div className="text-2xl font-bold text-amber-600">{anomalies.stagnantCount}</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">{t.longPending}</div>
+                <div className="p-4 flex flex-col justify-center h-full">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl text-center border border-amber-100 dark:border-amber-900/30 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setShowAnomalyModal(true)}>
+                            <div className="text-3xl font-black text-amber-500">{anomalies.stagnantCount}</div>
+                            <div className="text-[10px] text-amber-700/60 dark:text-amber-400/60 uppercase font-bold mt-1 tracking-wide">{t.longPending}</div>
                         </div>
-                        <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-xl text-center border border-purple-100">
-                            <div className="text-2xl font-bold text-purple-600">{anomalies.overloadedUsers.length}</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">{t.overloadedStaff}</div>
+                        <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-xl text-center border border-purple-100 dark:border-purple-900/30 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setShowAnomalyModal(true)}>
+                            <div className="text-3xl font-black text-purple-500">{anomalies.overloadedUsers.length}</div>
+                            <div className="text-[10px] text-purple-700/60 dark:text-purple-400/60 uppercase font-bold mt-1 tracking-wide">{t.overloadedStaff}</div>
                         </div>
                     </div>
                 </div>
@@ -421,28 +436,31 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-[300px] lg:h-[400px]">
-                <h4 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-4 flex items-center gap-2"><TrendingUp size={16} className="text-zte-blue"/> 工作完成概况</h4>
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-[320px] lg:h-[400px]">
+                <h4 className="font-bold text-xs sm:text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><TrendingUp size={16} className="text-zte-blue"/> 工作完成概况</h4>
                 <ResponsiveContainer width="100%" height="85%">
-                    <BarChart data={userStats} barSize={20}>
-                        <XAxis dataKey="name" tick={{fontSize: 10}} interval={0} stroke="#9CA3AF"/>
-                        <YAxis stroke="#9CA3AF" fontSize={10}/>
-                        <Tooltip contentStyle={{backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '12px'}} />
-                        <Bar dataKey="completed" name={t.completed} fill="#10B981" stackId="a"/>
+                    <BarChart data={userStats} barSize={16}>
+                        <XAxis dataKey="name" tick={{fontSize: 10}} interval={0} stroke="#9CA3AF" tickLine={false} axisLine={false} dy={10}/>
+                        <YAxis stroke="#9CA3AF" fontSize={10} tickLine={false} axisLine={false}/>
+                        <Tooltip 
+                            cursor={{fill: 'rgba(0,0,0,0.02)'}}
+                            contentStyle={{backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', padding: '12px'}} 
+                        />
+                        <Bar dataKey="completed" name={t.completed} fill="#10B981" stackId="a" radius={[0, 0, 4, 4]}/>
                         <Bar dataKey="pending" name={t.pending} fill="#E5E7EB" stackId="a"/>
                         <Bar dataKey="overdue" name={t.overdue} fill="#EF4444" radius={[4, 4, 0, 0]} stackId="a"/>
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-[300px] lg:h-[400px]">
-                <h4 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white mb-4 flex items-center gap-2"><PieChartIcon size={16} className="text-zte-blue"/>{t.categoryDistribution}</h4>
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-[320px] lg:h-[400px]">
+                <h4 className="font-bold text-xs sm:text-sm text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2"><PieChartIcon size={16} className="text-zte-blue"/>{t.categoryDistribution}</h4>
                 <ResponsiveContainer width="100%" height="85%">
                     <PieChart>
-                        <Pie data={categories} dataKey="value" innerRadius={50} outerRadius={80} paddingAngle={5}>
-                            {categories.map((e,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} strokeWidth={2} stroke="#fff"/>)}
+                        <Pie data={categories} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={4} cornerRadius={4}>
+                            {categories.map((e,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} strokeWidth={0}/>)}
                         </Pie>
-                        <Tooltip contentStyle={{borderRadius: '8px', fontSize: '12px'}}/>
-                        <Legend layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{fontSize: '10px'}}/>
+                        <Tooltip contentStyle={{backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #f3f4f6', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px'}}/>
+                        <Legend iconType="circle" layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{fontSize: '11px', fontWeight: 500, color: '#6B7280'}}/>
                     </PieChart>
                 </ResponsiveContainer>
             </div>
@@ -450,14 +468,15 @@ export const AdminDashboard: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
              <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-3 bg-gray-50/50 dark:bg-gray-800">
-                 <h3 className="font-bold text-base sm:text-lg flex items-center gap-2 text-gray-800 dark:text-white"><Briefcase size={18} className="text-zte-blue"/> 人员任务统计</h3>
+                 <h3 className="font-bold text-sm sm:text-base flex items-center gap-2 text-gray-800 dark:text-white uppercase tracking-wide"><Briefcase size={18} className="text-zte-blue"/> 人员任务统计</h3>
                  <div className="relative w-full sm:w-auto">
-                     <input className="pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-full text-xs sm:text-sm w-full sm:w-64 focus:ring-2 focus:ring-zte-blue outline-none dark:bg-gray-700 dark:text-white" placeholder={t.filterUser} value={personnelSearch} onChange={e=>setPersonnelSearch(e.target.value)} />
+                     <input className="pl-9 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full text-xs sm:text-sm w-full sm:w-64 focus:ring-2 focus:ring-zte-blue outline-none transition-all dark:text-white shadow-sm" placeholder={t.filterUser} value={personnelSearch} onChange={e=>setPersonnelSearch(e.target.value)} />
+                     <Eye className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                  </div>
              </div>
              <div className="overflow-x-auto min-h-[300px]">
                  <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                     <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                     <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-400 font-bold tracking-wider border-b border-gray-100 dark:border-gray-700">
                          <tr>
                              <th className="px-6 py-4">{t.name}</th>
                              <th className="px-6 py-4 text-center">已完成</th>
@@ -472,18 +491,21 @@ export const AdminDashboard: React.FC = () => {
                          {detailedUserStats.map(stat => (
                              <tr key={stat.user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-white flex items-center gap-3">
-                                     <div className="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-bold" style={{backgroundColor: stat.user.color}}>{stat.user.name.charAt(0)}</div>
-                                     <div className="flex flex-col"><span>{stat.user.name}</span><span className="text-[10px] text-gray-400">{stat.user.employeeId}</span></div>
+                                     <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm ring-2 ring-white dark:ring-gray-800" style={{backgroundColor: stat.user.color}}>{stat.user.name.charAt(0)}</div>
+                                     <div className="flex flex-col">
+                                         <span className="font-bold text-gray-800 dark:text-white">{stat.user.name}</span>
+                                         <span className="text-[10px] text-gray-400">{stat.user.employeeId}</span>
+                                     </div>
                                  </td>
-                                 <td className="px-6 py-4 text-center"><span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full">{stat.normal}</span></td>
-                                 <td className="px-6 py-4 text-center"><span className={stat.overdue > 0 ? "bg-red-50 text-red-700 px-3 py-1 rounded-full" : "text-gray-300"}>{stat.overdue || "-"}</span></td>
-                                 <td className="px-6 py-4 text-center"><span className="bg-amber-50 text-amber-700 px-3 py-1 rounded-full">{stat.pending}</span></td>
-                                 <td className="px-6 py-4 text-center"><span className={stat.abnormal > 0 ? "bg-purple-50 text-purple-700 px-3 py-1 rounded-full" : "text-gray-300"}>{stat.abnormal || "-"}</span></td>
+                                 <td className="px-6 py-4 text-center"><span className="bg-emerald-50 text-emerald-700 font-bold text-xs px-3 py-1 rounded-full">{stat.normal}</span></td>
+                                 <td className="px-6 py-4 text-center"><span className={stat.overdue > 0 ? "bg-red-50 text-red-700 font-bold text-xs px-3 py-1 rounded-full" : "text-gray-300 font-medium"}>{stat.overdue || "-"}</span></td>
+                                 <td className="px-6 py-4 text-center"><span className="bg-amber-50 text-amber-700 font-bold text-xs px-3 py-1 rounded-full">{stat.pending}</span></td>
+                                 <td className="px-6 py-4 text-center"><span className={stat.abnormal > 0 ? "bg-purple-50 text-purple-700 font-bold text-xs px-3 py-1 rounded-full" : "text-gray-300 font-medium"}>{stat.abnormal || "-"}</span></td>
                                  {/* PC Only Action Button */}
                                  <td className="px-6 py-4 text-center hidden md:table-cell">
                                      <button 
                                         onClick={() => setViewingUser(stat.user)}
-                                        className="text-zte-blue hover:text-white hover:bg-zte-blue p-2 rounded-full transition-all" 
+                                        className="text-gray-400 hover:text-zte-blue hover:bg-blue-50 p-2 rounded-lg transition-all" 
                                         title={language === 'zh' ? '查看详情' : 'View Details'}
                                      >
                                          <Eye size={18} />
@@ -500,18 +522,18 @@ export const AdminDashboard: React.FC = () => {
       {previewImage && (
           <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
               <div className="w-full max-w-lg flex flex-col gap-4">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white ring-4 ring-white/10">
                        <img src={previewImage.url} alt="Report Preview" className="w-full h-auto max-h-[70vh] object-contain" />
-                       <button onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full"><X size={20} /></button>
+                       <button onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70 transition-colors"><X size={20} /></button>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => setPreviewImage(null)} className="py-3 px-4 rounded-xl border border-white/20 text-white font-bold text-sm">
+                      <button onClick={() => setPreviewImage(null)} className="py-3 px-4 rounded-xl border border-white/20 text-white font-bold text-sm hover:bg-white/10 transition-colors">
                           {language === 'zh' ? '关闭' : 'Close'}
                       </button>
                       <a 
                         href={previewImage.downloadUrl} 
                         download={previewImage.filename} 
-                        className="py-3 px-4 rounded-xl bg-zte-blue text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2"
+                        className="py-3 px-4 rounded-xl bg-zte-blue text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2 hover:bg-zte-dark transition-colors"
                       >
                           <Download size={18} />
                           {language === 'zh' ? '下载图片' : 'Download Image'}
@@ -533,52 +555,52 @@ export const AdminDashboard: React.FC = () => {
                           <X size={20} className="text-gray-500" />
                       </button>
                   </div>
-                  <div className="p-4 md:p-6 overflow-y-auto space-y-6">
+                  <div className="p-4 md:p-6 overflow-y-auto space-y-8">
                        {/* Stagnant Tasks Section */}
                        <div>
-                           <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+                           <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2 text-xs uppercase tracking-wide">
                                <span className="w-2 h-2 bg-amber-500 rounded-full"></span> {t.longPending} (Overdue &gt; 1 Week)
                            </h4>
-                           <div className="border rounded-lg dark:border-gray-700 overflow-hidden">
+                           <div className="border border-gray-200 rounded-xl dark:border-gray-700 overflow-hidden shadow-sm">
                                {anomalies.stagnantTasksList.length > 0 ? (
                                    <table className="w-full text-sm text-left">
-                                       <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 uppercase">
+                                       <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-500 uppercase font-bold tracking-wider">
                                            <tr>
-                                               <th className="px-4 py-2">{t.taskTitle}</th>
-                                               <th className="px-4 py-2">{t.name}</th>
-                                               <th className="px-4 py-2">{t.start}</th>
+                                               <th className="px-4 py-3">{t.taskTitle}</th>
+                                               <th className="px-4 py-3">{t.name}</th>
+                                               <th className="px-4 py-3">{t.start}</th>
                                            </tr>
                                        </thead>
                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                            {anomalies.stagnantTasksList.map(task => {
                                                const user = statsUsers.find(u => u.employeeId === task.employeeId);
                                                return (
-                                                   <tr key={task.id}>
-                                                       <td className="px-4 py-2 font-medium text-gray-800 dark:text-white truncate max-w-[200px]" title={task.title}>{task.title}</td>
-                                                       <td className="px-4 py-2 text-gray-600 dark:text-gray-300">{user?.name || task.employeeId}</td>
-                                                       <td className="px-4 py-2 text-gray-500 font-mono text-xs">{task.startDate}</td>
+                                                   <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                                       <td className="px-4 py-3 font-medium text-gray-800 dark:text-white truncate max-w-[200px]" title={task.title}>{task.title}</td>
+                                                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{user?.name || task.employeeId}</td>
+                                                       <td className="px-4 py-3 text-gray-500 font-mono text-xs">{task.startDate}</td>
                                                    </tr>
                                                );
                                            })}
                                        </tbody>
                                    </table>
                                ) : (
-                                   <div className="p-4 text-center text-gray-400 text-sm">{language === 'zh' ? '无长期停滞任务' : 'No stagnant tasks detected.'}</div>
+                                   <div className="p-8 text-center text-gray-400 text-sm">{language === 'zh' ? '无长期停滞任务' : 'No stagnant tasks detected.'}</div>
                                )}
                            </div>
                        </div>
 
                        {/* Overloaded Staff Section */}
                        <div>
-                           <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+                           <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2 text-xs uppercase tracking-wide">
                                <span className="w-2 h-2 bg-purple-500 rounded-full"></span> {t.overloadedStaff} (&gt; 5 Overdue Tasks)
                            </h4>
                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                {anomalies.overloadedUsers.length > 0 ? (
                                    anomalies.overloadedUsers.map((item, i) => (
-                                       <div key={i} className="flex items-center justify-between p-3 border border-purple-100 dark:border-purple-900/30 bg-purple-50/50 dark:bg-purple-900/10 rounded-lg">
-                                           <div className="flex items-center gap-2">
-                                               <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-600 dark:text-purple-200 flex items-center justify-center font-bold text-xs">
+                                       <div key={i} className="flex items-center justify-between p-3 border border-purple-100 dark:border-purple-900/30 bg-purple-50/50 dark:bg-purple-900/10 rounded-xl shadow-sm">
+                                           <div className="flex items-center gap-3">
+                                               <div className="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-800 text-purple-600 dark:text-purple-200 flex items-center justify-center font-bold text-xs ring-2 ring-white dark:ring-gray-700">
                                                    {item.name.charAt(0)}
                                                </div>
                                                <div>
@@ -587,13 +609,13 @@ export const AdminDashboard: React.FC = () => {
                                                </div>
                                            </div>
                                            <div className="text-right">
-                                               <div className="text-lg font-bold text-purple-600">{item.count}</div>
-                                               <div className="text-[10px] text-purple-400 uppercase">Overdue</div>
+                                               <div className="text-xl font-black text-purple-600">{item.count}</div>
+                                               <div className="text-[9px] text-purple-400 uppercase font-bold tracking-wider">Overdue</div>
                                            </div>
                                        </div>
                                    ))
                                ) : (
-                                   <div className="col-span-full p-4 text-center text-gray-400 text-sm border rounded-lg dark:border-gray-700">
+                                   <div className="col-span-full p-8 text-center text-gray-400 text-sm border border-dashed border-gray-200 rounded-xl dark:border-gray-700">
                                        {language === 'zh' ? '无积压人员' : 'No overloaded staff detected.'}
                                    </div>
                                )}
@@ -616,7 +638,7 @@ export const AdminDashboard: React.FC = () => {
                   {/* Header */}
                   <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50 rounded-t-2xl">
                       <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-lg" style={{backgroundColor: viewingUser.color}}>
+                          <div className="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-lg shadow-sm ring-2 ring-white" style={{backgroundColor: viewingUser.color}}>
                               {viewingUser.name.charAt(0)}
                           </div>
                           <div>
@@ -632,13 +654,13 @@ export const AdminDashboard: React.FC = () => {
                   {/* Table Content */}
                   <div className="flex-1 overflow-auto p-0">
                       <table className="w-full text-sm text-left">
-                          <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-900 sticky top-0 z-10 shadow-sm">
+                          <thead className="text-xs text-gray-400 uppercase bg-gray-50 dark:bg-gray-900 sticky top-0 z-10 shadow-sm font-bold tracking-wider">
                               <tr>
-                                  <th className="px-6 py-4 font-bold">{t.taskTitle}</th>
-                                  <th className="px-6 py-4 font-bold text-center">{t.category}</th>
-                                  <th className="px-6 py-4 font-bold text-center">{language === 'zh' ? '起止时间' : 'Duration'}</th>
-                                  <th className="px-6 py-4 font-bold text-center">{t.status}</th>
-                                  <th className="px-6 py-4 font-bold">{language === 'zh' ? '异常/描述' : 'Description/Anomaly'}</th>
+                                  <th className="px-6 py-3">{t.taskTitle}</th>
+                                  <th className="px-6 py-3 text-center">{t.category}</th>
+                                  <th className="px-6 py-3 text-center">{language === 'zh' ? '起止时间' : 'Duration'}</th>
+                                  <th className="px-6 py-3 text-center">{t.status}</th>
+                                  <th className="px-6 py-3">{language === 'zh' ? '异常/描述' : 'Description/Anomaly'}</th>
                               </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -656,7 +678,9 @@ export const AdminDashboard: React.FC = () => {
                                           <td className="px-6 py-4 font-medium text-gray-900 dark:text-white max-w-[200px]">
                                               <div className="truncate" title={task.title}>{task.title}</div>
                                           </td>
-                                          <td className="px-6 py-4 text-center text-gray-500">{task.category}</td>
+                                          <td className="px-6 py-4 text-center text-gray-500">
+                                              <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs">{task.category}</span>
+                                          </td>
                                           <td className="px-6 py-4 text-center">
                                             <div className="flex flex-col items-center gap-0.5">
                                                 <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{task.startDate}</span>
@@ -665,24 +689,24 @@ export const AdminDashboard: React.FC = () => {
                                             </div>
                                           </td>
                                           <td className="px-6 py-4 text-center">
-                                              <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${task.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' : (isOverdue ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200')}`}>
+                                              <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wide font-bold border shadow-sm ${task.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' : (isOverdue ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200')}`}>
                                                   {task.status === 'completed' ? t.completed : (isOverdue ? t.overdue : t.pending)}
                                               </span>
                                           </td>
                                           <td className="px-6 py-4 text-gray-600 dark:text-gray-300 max-w-[300px]">
                                               <div className="flex flex-col gap-1.5">
                                                   {isOverdue && (
-                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded w-fit">
+                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded w-fit uppercase tracking-wide border border-red-200">
                                                           <Clock size={10} /> {language === 'zh' ? '已逾期' : 'Overdue'}
                                                       </span>
                                                   )}
                                                   {isLateCompletion && (
-                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded w-fit">
+                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded w-fit border border-red-200">
                                                           <Clock size={10} /> {language === 'zh' ? '严重逾期完成' : 'Late Completion (>3 Days)'}
                                                       </span>
                                                   )}
                                                   {isFrequentEdit && (
-                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded w-fit">
+                                                      <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded w-fit border border-amber-200">
                                                           <AlertTriangle size={10} /> {language === 'zh' ? '频繁修改' : 'Frequent Edits'}
                                                       </span>
                                                   )}

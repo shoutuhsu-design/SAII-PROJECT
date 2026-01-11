@@ -185,7 +185,14 @@ export const AuthScreen: React.FC = () => {
           <div className="flex-1 flex flex-col justify-center items-center w-full min-h-0">
               <div className="w-full max-w-sm bg-white/70 backdrop-blur-xl lg:bg-transparent rounded-3xl lg:rounded-none shadow-[0_8px_30px_rgb(0,0,0,0.06)] lg:shadow-none border border-white/60 lg:border-none p-8 lg:p-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="mb-10 text-center lg:text-left">
-                    <div className="h-10 w-28 mb-6 lg:hidden mx-auto"><Logo variant="blue" /></div>
+                    {/* Unified Mobile Logo: White on Blue to match Desktop */}
+                    <div className="lg:hidden w-full flex justify-center mb-8">
+                        <div className="bg-gradient-to-r from-zte-blue to-zte-dark p-4 rounded-2xl shadow-lg shadow-blue-500/20">
+                            <div className="h-8 w-24">
+                                <Logo variant="white" />
+                            </div>
+                        </div>
+                    </div>
                     
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{isSettingPassword ? t.firstLoginSetup : (isLogin ? t.welcome : t.register)}</h2>
                     <p className="text-gray-500 text-sm sm:text-base">{t.deptName}</p>
